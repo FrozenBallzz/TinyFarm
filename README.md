@@ -4,14 +4,7 @@
 L'application simule une ferme virtuelle inspirée du jeu **My eFarm**.
 Le joueur gère différents animaux (poules, lapins, vache), produit des ressources (œufs, lait, lapins) et peut vendre ces produits afin de gagner des écus.
 
-Le projet est implémenté sous la forme d'une **application web Spring Boot avec une API REST**, une base de données embarquée pour le kernel, une cible PostgreSQL pour la suite, et une authentification via **GitHub OAuth2**.
-
-Etat actuel du kernel :
-
-* **H2** par défaut pour le développement et les tests
-* **GitHub OAuth** obligatoire au démarrage
-* domaine minimal : **User**, **Farm**, **Inventory**, **Cow**
-* frontend minimal avec une page d'accueil et un tableau de bord simple
+Le projet est implémenté sous la forme d'une **application web Spring Boot avec une API REST**, une base de données PostgreSQL et une authentification via **GitHub OAuth2**.
 
 ---
 
@@ -24,7 +17,6 @@ Backend
 * Spring Security
 * OAuth2 (GitHub Login)
 * Spring Data JPA
-* H2
 * PostgreSQL
 
 Frontend
@@ -47,7 +39,7 @@ Pour lancer l'application, les outils suivants doivent être installés :
 
 * **Java 17 ou supérieur**
 * **Maven** (ou utiliser le wrapper Maven fourni)
-* **PostgreSQL** si vous activez le profil `postgres`
+* **PostgreSQL**
 * **Git**
 
 Vérifier les installations :
@@ -66,44 +58,16 @@ psql --version
 
 ```bash
 git clone https://github.com/FrozenBallzz/TinyFarm
-cd tinyfarm
+cd TinyFarm
 ```
 
 ---
 
 # Configuration de la base de données
 
-Le kernel utilise **H2 par défaut**.
+L'application utilise **PostgreSQL**.
 
-## 1. Mode par défaut : H2
-
-Aucune base externe n'est nécessaire pour lancer le kernel.
-
-La base locale est stockée via :
-
-```text
-jdbc:h2:file:./data/tinyfarm
-```
-
-Console H2 :
-
-```text
-http://localhost:8080/h2-console
-```
-
----
-
-## 2. Mode PostgreSQL
-
-Quand vous voudrez migrer vers PostgreSQL :
-
-```bash
-export SPRING_PROFILES_ACTIVE=postgres
-```
-
-Puis créez la base.
-
-## 3. Créer la base
+## 1. Créer la base
 
 Se connecter à PostgreSQL :
 
@@ -132,7 +96,7 @@ Quitter PostgreSQL :
 
 ---
 
-## 4. Configuration Spring Boot
+## 2. Configuration Spring Boot
 
 Le fichier de configuration principal se trouve dans :
 
@@ -140,14 +104,25 @@ Le fichier de configuration principal se trouve dans :
 src/main/resources/application.yml
 ```
 
-Exemple de configuration PostgreSQL :
+Exemple de configuration :
 
 ```yaml
 spring:
+
   datasource:
     url: jdbc:postgresql://localhost:5432/tinyfarm
     username: tinyfarm
     password: tinyfarm
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+    show-sql: true
+
+    properties:
+      hibernate:
+        format_sql: true
 ```
 
 ---
@@ -178,17 +153,7 @@ Callback URL     : http://localhost:8080/login/oauth2/code/github
 
 ## 2. Ajouter les variables d'environnement
 
-Le kernel ne démarre pas tant que ces variables ne sont pas définies.
-
-Pour un setup local simple :
-
-```bash
-cp .env.example .env
-```
-
-Puis remplissez `.env` avec vos identifiants GitHub OAuth.
-
-Avant de lancer l'application, vous pouvez soit utiliser `.env`, soit exporter les variables à la main :
+Avant de lancer l'application :
 
 ```bash
 export GITHUB_CLIENT_ID=xxxxx
@@ -202,13 +167,13 @@ export GITHUB_CLIENT_SECRET=xxxxx
 Depuis la racine du projet :
 
 ```bash
-mvn spring-boot:run
+./mvnw spring-boot:run
 ```
 
-Ou avec PostgreSQL :
+Ou avec Maven :
 
 ```bash
-SPRING_PROFILES_ACTIVE=postgres mvn spring-boot:run
+mvn spring-boot:run
 ```
 
 ---
@@ -302,9 +267,9 @@ Responsable de :
 Exemple :
 
 ```
-GET /api/dashboard
-POST /api/cows/{id}/feed
-POST /api/cows/{id}/collect-milk
+GET /farm
+POST /chicken/feed
+GET /market
 ```
 
 ---
@@ -340,16 +305,20 @@ Chaque entité est persistée via **JPA / Hibernate**.
 
 # Modèle métier
 
-Les principales entités du kernel sont :
+Les principales entités du domaine sont :
 
 ```
 User
 Farm
+Chicken
+Rabbit
 Cow
 Inventory
+MarketItem
+Transaction
 ```
 
-Chaque entité correspond à une table persistante. Le domaine est volontairement minimal pour faciliter les évolutions suivantes.
+Chaque entité correspond à une table PostgreSQL.
 
 ---
 
@@ -365,8 +334,7 @@ Ils couvrent :
 
 * la logique métier
 * l'accès aux données
-* le provisioning utilisateur OAuth
-* les actions coeur sur les vaches
+* les endpoints REST
 
 ---
 
