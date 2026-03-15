@@ -1,0 +1,18 @@
+app:
+  github:
+    client-id: test-client
+    client-secret: test-secret
+
+spring:
+  datasource:
+    url: jdbc:h2:mem:tinyfarm-test;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false

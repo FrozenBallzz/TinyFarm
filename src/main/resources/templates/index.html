@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TinyFarm Kernel</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+<main class="shell">
+    <section class="panel">
+        <p class="eyebrow">TinyFarm Kernel</p>
+        <h1>Minimal farm core, real GitHub auth, upgrade-ready backend.</h1>
+        <p class="copy">
+            The current kernel keeps the domain small: one authenticated user, one farm, one inventory and cows.
+        </p>
+
+        <div th:if="${!isAuthenticated}">
+            <a class="button" href="/oauth2/authorization/github">Login with GitHub</a>
+        </div>
+
+        <div th:if="${isAuthenticated and dashboard != null}" class="stack">
+            <p class="stat" th:text="'Farm: ' + ${dashboard.farmName()}"></p>
+            <p class="stat" th:text="'Coins: ' + ${dashboard.coins()}"></p>
+            <p class="stat" th:text="'Feed: ' + ${dashboard.feedStock()}"></p>
+            <p class="stat" th:text="'Milk: ' + ${dashboard.milkStock()}"></p>
+            <ul class="cows">
+                <li th:each="cow : ${dashboard.cows()}"
+                    th:text="${cow.name()} + ' - energy ' + ${cow.energy()} + ', readyToMilk=' + ${cow.readyToMilk()}"></li>
+            </ul>
+            <form action="/logout" method="post">
+                <button class="button secondary" type="submit">Logout</button>
+            </form>
+        </div>
+    </section>
+</main>
+</body>
+</html>

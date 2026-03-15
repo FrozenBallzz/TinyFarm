@@ -58,7 +58,7 @@ psql --version
 
 ```bash
 git clone https://github.com/FrozenBallzz/TinyFarm
-cd tinyfarm
+cd TinyFarm
 ```
 
 ---
