@@ -1,10 +1,10 @@
 :root {
-    --bg: #f7f1dd;
-    --surface: rgba(255, 252, 244, 0.88);
-    --text: #2e2418;
-    --accent: #4f7a38;
-    --accent-dark: #355224;
-    --border: rgba(46, 36, 24, 0.12);
+    --bg: #f6efe2;
+    --text: #2d2419;
+    --panel: rgba(255, 252, 246, 0.92);
+    --accent: #46692f;
+    --accent-strong: #2f471f;
+    --border: rgba(45, 36, 25, 0.12);
 }
 
 * {
@@ -17,56 +17,71 @@ body {
     font-family: Georgia, "Times New Roman", serif;
     color: var(--text);
     background:
-        radial-gradient(circle at top, rgba(255, 216, 141, 0.6), transparent 35%),
-        linear-gradient(180deg, #fff9eb 0%, var(--bg) 100%);
+        radial-gradient(circle at top left, rgba(255, 215, 153, 0.55), transparent 30%),
+        linear-gradient(180deg, #fffaf0 0%, var(--bg) 100%);
 }
 
-.hero {
+.shell {
     min-height: 100vh;
     display: grid;
     place-items: center;
     padding: 2rem;
 }
 
-.hero section {
-    max-width: 700px;
+.panel {
+    width: min(760px, 100%);
     padding: 3rem;
-    background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 24px;
-    box-shadow: 0 20px 60px rgba(83, 57, 27, 0.12);
+    background: var(--panel);
+    box-shadow: 0 22px 64px rgba(58, 42, 23, 0.14);
 }
 
 .eyebrow {
     margin: 0 0 1rem;
-    text-transform: uppercase;
     letter-spacing: 0.2em;
-    color: var(--accent-dark);
+    text-transform: uppercase;
+    color: var(--accent);
 }
 
 h1 {
     margin: 0;
-    font-size: clamp(2.5rem, 8vw, 4.75rem);
+    font-size: clamp(2.25rem, 7vw, 4.5rem);
     line-height: 0.95;
 }
 
 .copy {
     margin: 1.5rem 0 0;
-    font-size: 1.1rem;
+    line-height: 1.7;
+    font-size: 1.08rem;
+}
+
+.stack {
+    margin-top: 2rem;
+}
+
+.stat {
+    margin: 0.5rem 0;
+    font-size: 1.05rem;
+}
+
+.cows {
+    padding-left: 1.2rem;
     line-height: 1.7;
 }
 
 .button {
     display: inline-block;
     margin-top: 2rem;
-    padding: 0.9rem 1.4rem;
+    padding: 0.9rem 1.35rem;
+    border: 0;
     border-radius: 999px;
-    color: #fff;
     background: var(--accent);
+    color: #fff;
     text-decoration: none;
-    transition: background 0.2s ease;
+    cursor: pointer;
 }
 
-.button:hover {
-    background: var(--accent-dark);
+.button.secondary {
+    background: var(--accent-strong);
 }
