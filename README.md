@@ -198,30 +198,30 @@ Le projet est organisé selon une architecture en couches typique des applicatio
 tinyfarm/
 │
 ├── src/
-│
-│   ├── controller/
-│   │   Endpoints REST exposés par l'application.
-│   │
-│   ├── service/
-│   │   Logique métier du jeu (gestion des animaux, production, marché).
-│   │
-│   ├── repository/
-│   │   Accès à la base de données via Spring Data JPA.
-│   │
-│   ├── entity/
-│   │   Modèle de données persistant (entités JPA).
-│   │
-│   ├── dto/
-│   │   Objets utilisés pour échanger des données avec l'API.
-│   │
-│   ├── config/
-│   │   Configuration Spring (sécurité, OAuth2, etc.).
-│   │
-│   ├── domain/
-│   │   Règles métier spécifiques au jeu.
-│   │
-│   └── util/
-│       Fonctions utilitaires utilisées dans l'application.
+│   ├── main/
+│   │   ├── java/com/tinyfarm/
+│   │   │   ├── controller/
+│   │   │   │   Endpoints REST exposés par l'application.
+│   │   │   ├── service/
+│   │   │   │   Logique métier du jeu (gestion des animaux, production, marché).
+│   │   │   ├── repository/
+│   │   │   │   Accès à la base de données via Spring Data JPA.
+│   │   │   ├── entity/
+│   │   │   │   Modèle de données persistant (entités JPA).
+│   │   │   ├── dto/
+│   │   │   │   Objets utilisés pour échanger des données avec l'API.
+│   │   │   ├── config/
+│   │   │   │   Configuration Spring (sécurité, OAuth2, etc.).
+│   │   │   ├── domain/
+│   │   │   │   Règles métier spécifiques au jeu.
+│   │   │   ├── util/
+│   │   │   │   Fonctions utilitaires utilisées dans l'application.
+│   │   │   └── TinyFarmApplication.java
+│   │   └── resources/
+│   │       ├── application.yml
+│   │       └── static/
+│   └── test/
+│       └── java/com/tinyfarm/
 │
 ├── docs/
 │   Documentation technique du projet :
@@ -354,4 +354,3 @@ Elle contient :
 * les règles métier du jeu
 
 ---
-
