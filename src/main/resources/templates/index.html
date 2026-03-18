@@ -1,38 +1,367 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TinyFarm Kernel</title>
+    <title>TinyFarm Prototype</title>
     <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
-<main class="shell">
-    <section class="panel">
-        <p class="eyebrow">TinyFarm Kernel</p>
-        <h1>Minimal farm core, real GitHub auth, upgrade-ready backend.</h1>
-        <p class="copy">
-            The current kernel keeps the domain small: one authenticated user, one farm, one inventory and cows.
-        </p>
+<div class="toast-stack" id="toast-stack" aria-live="polite" aria-atomic="true"></div>
 
-        <div th:if="${!isAuthenticated}">
-            <a class="button" href="/oauth2/authorization/github">Login with GitHub</a>
+<aside class="left-rail" th:if="${isAuthenticated and dashboard != null}">
+    <section class="farm-clock" id="farm-clock" th:attr="data-now=${dashboard.timeStatus().currentTimeIso()}">
+        <div class="clock-top">
+            <div>
+                <p class="clock-label">Heure de la ferme</p>
+                <p class="clock-time" id="clock-time" th:text="${dashboard.timeStatus().currentTimeLabel()}">12:00</p>
+            </div>
+            <button class="profile-toggle" id="profile-toggle" type="button" aria-expanded="false" aria-controls="profile-card">
+                Profil
+            </button>
+        </div>
+        <p class="clock-date" id="clock-date" th:text="${dashboard.timeStatus().currentDateLabel()}">Jeudi 1 janvier 2026</p>
+        <p class="clock-phase" id="clock-phase" th:text="${dashboard.timeStatus().dayPhaseLabel()}">Matin de ferme</p>
+    </section>
+
+    <section class="profile-card" id="profile-card" hidden>
+        <p class="zone-kicker">Profil</p>
+        <h2 th:text="${dashboard.githubLogin()}">tinyfarmer</h2>
+        <p class="profile-line" th:text="'Ferme : ' + ${dashboard.farmName()}">Ferme : TinyFarm</p>
+        <p class="profile-line" th:text="'Solde : ' + ${dashboard.coins()} + ' ecus'">Solde : 1500 ecus</p>
+        <p class="profile-line">Niveau 1 fermier</p>
+        <form action="/logout" method="post">
+            <button class="button secondary profile-logout" type="submit">Se deconnecter</button>
+        </form>
+    </section>
+</aside>
+
+<aside class="leaderboard-dock" th:if="${isAuthenticated and dashboard != null}">
+    <p class="zone-kicker">Classement</p>
+    <h2>Top fermiers</h2>
+    <p class="leaderboard-note">Recalcule toutes les 30 minutes.</p>
+    <div class="leaderboard-list">
+        <article class="leaderboard-entry" th:each="entry : ${dashboard.leaderboard()}">
+            <p class="leaderboard-rank" th:text="'#' + ${entry.rank()}">#1</p>
+            <div>
+                <p class="leaderboard-player" th:text="${entry.player()}">Marcel</p>
+                <p class="leaderboard-specialty" th:text="${entry.specialty()}">Vente de lait</p>
+            </div>
+            <p class="leaderboard-score" th:text="${entry.score()} + ' pts'">3420 pts</p>
+        </article>
+    </div>
+</aside>
+
+<main class="shell">
+    <section class="panel panel-auth" th:if="${!isAuthenticated}">
+        <div class="auth-head">
+            <p class="zone-kicker">Connexion</p>
+            <h1>TinyFarm</h1>
         </div>
 
-        <div th:if="${isAuthenticated and dashboard != null}" class="stack">
-            <p class="stat" th:text="'Farm: ' + ${dashboard.farmName()}"></p>
-            <p class="stat" th:text="'Coins: ' + ${dashboard.coins()}"></p>
-            <p class="stat" th:text="'Feed: ' + ${dashboard.feedStock()}"></p>
-            <p class="stat" th:text="'Milk: ' + ${dashboard.milkStock()}"></p>
-            <ul class="cows">
-                <li th:each="cow : ${dashboard.cows()}"
-                    th:text="${cow.name()} + ' - energy ' + ${cow.energy()} + ', readyToMilk=' + ${cow.readyToMilk()}"></li>
-            </ul>
-            <form action="/logout" method="post">
-                <button class="button secondary" type="submit">Logout</button>
+        <div th:if="${!devAuthEnabled}">
+            <a class="button" href="/oauth2/authorization/github">Connexion avec GitHub</a>
+        </div>
+
+        <div th:if="${devAuthEnabled}" class="stack">
+            <p class="status-banner error" th:if="${authError}" th:text="${authError}"></p>
+            <form class="dev-login" action="/dev-login" method="post">
+                <label>
+                    Token local
+                    <input name="token" type="password" placeholder="dev-tinyfarm-token" required>
+                </label>
+                <label>
+                    Faux login GitHub
+                    <input name="login" type="text" placeholder="tinyfarmer-a" required>
+                </label>
+                <label>
+                    Nom affiche
+                    <input name="name" type="text" placeholder="Tiny Farmer A">
+                </label>
+                <label>
+                    Faux id GitHub
+                    <input name="id" type="number" placeholder="101">
+                </label>
+                <button class="button" type="submit">Connexion locale</button>
             </form>
         </div>
     </section>
+
+    <section class="panel dashboard-panel" th:if="${isAuthenticated and dashboard != null}">
+        <div class="dashboard-head">
+            <div>
+                <p class="zone-kicker">Tableau de bord</p>
+                <h1 th:text="${dashboard.farmName()}">Ferme TinyFarmer</h1>
+            </div>
+            <span class="pill">Niveau 1</span>
+        </div>
+
+        <div class="stats-grid">
+            <p class="stat" th:text="'Ecus : ' + ${dashboard.coins()}"></p>
+            <p class="stat" th:text="'Paille : ' + ${dashboard.strawStock()}"></p>
+            <p class="stat" th:text="'Seaux eau : ' + ${dashboard.waterBucketStock()}"></p>
+            <p class="stat" th:text="'Savons : ' + ${dashboard.soapStock()}"></p>
+            <p class="stat" th:text="'Seringues : ' + ${dashboard.syringeStock()}"></p>
+            <p class="stat" th:text="'Lait en reserve : ' + ${dashboard.milkStock()} + ' L'"></p>
+        </div>
+
+        <section class="dashboard-grid">
+            <article class="time-card">
+                <div class="zone-head">
+                    <div>
+                        <p class="zone-kicker">Temps</p>
+                        <h2>Regles horaires</h2>
+                    </div>
+                    <span class="pill" th:text="${dashboard.timeStatus().cooperativeOpen()} ? 'Ouvert' : 'Ferme'">Ouvert</span>
+                </div>
+                <p class="time-line" th:text="${dashboard.timeStatus().cooperativeStatusLabel()}">La cooperative est ouverte maintenant.</p>
+                <p class="time-line" th:text="${dashboard.timeStatus().nextCooperativeWindowLabel()}">Prochaine ouverture...</p>
+                <p class="time-line" th:text="${dashboard.timeStatus().nextMilkWindowLabel()}">Prochaine traite...</p>
+                <p class="time-line" th:text="${dashboard.timeStatus().eggDeadlineLabel()}">Les oeufs...</p>
+                <p class="time-line" th:text="${dashboard.timeStatus().hibernationWarningLabel()}">Hibernation...</p>
+                <p class="time-line" th:text="${dashboard.timeStatus().deletionWarningLabel()}">Suppression...</p>
+            </article>
+
+            <article class="shop-card">
+                <div class="zone-head">
+                    <div>
+                        <p class="zone-kicker">Boutique</p>
+                        <h2>Marches de la ferme</h2>
+                    </div>
+                    <span class="pill" th:text="${dashboard.shopStatus().purchasesRemaining()} + ' achats restants'">12 achats restants</span>
+                </div>
+
+                <div class="shop-market-grid">
+                    <section class="shop-market">
+                        <div class="shop-market-head">
+                            <div>
+                                <h3>Cooperative</h3>
+                                <p class="market-status" th:text="${dashboard.shopStatus().cooperativeLabel()}">Cooperative ouverte</p>
+                            </div>
+                            <span class="shop-badge" th:text="'Limite : ' + ${dashboard.shopStatus().dailyPurchaseLimit()}">Limite : 12</span>
+                        </div>
+                        <p class="shop-note" th:text="${dashboard.shopStatus().cooperativeNote()}">Stock du jour accessible.</p>
+                        <div class="shop-items">
+                            <article class="shop-item" th:each="item : ${dashboard.shopStatus().cooperativeItems()}">
+                                <div>
+                                    <p class="shop-item-name" th:text="${item.name()}">Sac de nourriture</p>
+                                    <p class="shop-item-note" th:text="${item.note()}">Nourrit une race complete.</p>
+                                </div>
+                                <div class="shop-item-meta">
+                                    <p th:text="${item.price()} + ' ecus'">14 ecus</p>
+                                    <p th:text="'Stock : ' + ${item.stock()}">Stock : 12</p>
+                                </div>
+                            </article>
+                        </div>
+                    </section>
+
+                    <section class="shop-market">
+                        <div class="shop-market-head">
+                            <div>
+                                <h3>Marche des eleveurs</h3>
+                                <p class="market-status" th:text="${dashboard.shopStatus().breedersMarketLabel()}">Marche des eleveurs ouvert 24h/24</p>
+                            </div>
+                            <span class="shop-badge">Prix libres</span>
+                        </div>
+                        <p class="shop-note" th:text="${dashboard.shopStatus().breedersMarketNote()}">Le plafond de 12 achats est partage.</p>
+                        <div class="shop-items">
+                            <article class="shop-item" th:each="item : ${dashboard.shopStatus().breederItems()}">
+                                <div>
+                                    <p class="shop-item-name" th:text="${item.name()}">Savon ferme</p>
+                                    <p class="shop-item-note" th:text="'Vendeur : ' + ${item.seller()}">Vendeur : Huguette</p>
+                                </div>
+                                <div class="shop-item-meta">
+                                    <p th:text="${item.price()} + ' ecus'">9 ecus</p>
+                                    <p th:text="'Stock : ' + ${item.stock()}">Stock : 1</p>
+                                </div>
+                            </article>
+                        </div>
+                    </section>
+                </div>
+            </article>
+        </section>
+
+        <section class="farm-zone-grid">
+            <article class="zone-card">
+                <div class="zone-head">
+                    <div>
+                        <p class="zone-kicker">Poulailler</p>
+                        <h2>Les volailles</h2>
+                    </div>
+                    <span class="pill prototype-pill">Prototype</span>
+                </div>
+                <div class="zone-stats">
+                    <p th:text="'Coqs : ' + ${dashboard.chickenSpace().roosters()}"></p>
+                    <p th:text="'Poules : ' + ${dashboard.chickenSpace().hens()}"></p>
+                    <p th:text="'Poussins : ' + ${dashboard.chickenSpace().chicks()}"></p>
+                    <p th:text="'Capacite : ' + ${dashboard.chickenSpace().coopCapacity()}"></p>
+                    <p th:text="'Oeufs a vendre : ' + ${dashboard.chickenSpace().eggsReadyToSell()}"></p>
+                </div>
+                <p class="zone-copy" th:text="${dashboard.chickenSpace().prototypeStatus()}"></p>
+                <div class="actions">
+                    <button class="button disabled-button" type="button" disabled>Nourrir les volailles</button>
+                    <button class="button disabled-button" type="button" disabled>Abreuver le poulailler</button>
+                    <button class="button secondary disabled-button" type="button" disabled>Vendre les oeufs</button>
+                </div>
+            </article>
+
+            <article class="zone-card">
+                <div class="zone-head">
+                    <div>
+                        <p class="zone-kicker">Clapier</p>
+                        <h2>Les lapins</h2>
+                    </div>
+                    <span class="pill prototype-pill">Prototype</span>
+                </div>
+                <div class="zone-stats">
+                    <p th:text="'Lapereaux : ' + ${dashboard.rabbitSpace().rabbitKits()}"></p>
+                    <p th:text="'Lapins adultes : ' + ${dashboard.rabbitSpace().adultRabbits()}"></p>
+                    <p th:text="'Capacite lapereaux : ' + ${dashboard.rabbitSpace().kitCapacity()}"></p>
+                    <p th:text="'Capacite adultes : ' + ${dashboard.rabbitSpace().adultCapacity()}"></p>
+                </div>
+                <p class="zone-copy" th:text="${dashboard.rabbitSpace().prototypeStatus()}"></p>
+                <div class="actions">
+                    <button class="button disabled-button" type="button" disabled>Nourrir le clapier</button>
+                    <button class="button disabled-button" type="button" disabled>Nettoyer le clapier</button>
+                    <button class="button secondary disabled-button" type="button" disabled>Vendre les lapins</button>
+                </div>
+            </article>
+        </section>
+
+        <section class="zone-section">
+            <div class="zone-head">
+                <div>
+                    <p class="zone-kicker">Paturages</p>
+                    <h2>La vache</h2>
+                </div>
+                <span class="pill">Interactif</span>
+            </div>
+        </section>
+
+        <div class="cows">
+            <article class="cow-card" th:each="cow : ${dashboard.cows()}">
+                <div class="cow-head">
+                    <div>
+                        <h2 th:text="${cow.name()}">Starter Cow</h2>
+                        <p class="cow-subtitle" th:text="${cow.adult()} ? 'Vache adulte' : 'Jeune vache en croissance'">Jeune vache en croissance</p>
+                    </div>
+                    <span class="pill" th:text="${cow.readyToMilk()} ? 'Lait pret' : 'Pas de lait pour le moment'">Lait pret</span>
+                </div>
+
+                <div class="cow-stats">
+                    <p th:text="'Age : ' + ${cow.ageDays()} + ' jours'"></p>
+                    <p th:text="'Poids : ' + ${#numbers.formatDecimal(cow.weightKg(), 1, 1)} + ' kg'"></p>
+                    <p th:text="'Lait stocke : ' + ${cow.storedMilkLiters()} + ' L'"></p>
+                    <p th:text="'Proprete : ' + (${cow.clean()} ? 'propre' : 'sale')"></p>
+                    <p th:text="'Sante : ' + (${cow.healthy()} ? 'saine' : 'malade')"></p>
+                    <p th:text="'Repas du jour : ' + (${cow.ateToday()} ? 'oui' : 'non')"></p>
+                    <p th:text="'Eau du jour : ' + (${cow.drankToday()} ? 'oui' : 'non')"></p>
+                </div>
+
+                <div class="actions">
+                    <button class="button action-button" th:attr="data-cow-id=${cow.id()},data-action='feed'">Nourrir avec l'herbe</button>
+                    <button class="button action-button" th:attr="data-cow-id=${cow.id()},data-action='feed-straw'">Nourrir avec la paille</button>
+                    <button class="button action-button" th:attr="data-cow-id=${cow.id()},data-action='water'">Abreuver</button>
+                    <button class="button action-button" th:attr="data-cow-id=${cow.id()},data-action='clean'">Nettoyer</button>
+                    <button class="button action-button" th:attr="data-cow-id=${cow.id()},data-action='heal'">Soigner</button>
+                    <button class="button secondary action-button" th:attr="data-cow-id=${cow.id()},data-action='collect-milk'">Traire</button>
+                </div>
+            </article>
+        </div>
+    </section>
 </main>
+
+<script th:if="${isAuthenticated}">
+    const toastStack = document.getElementById("toast-stack");
+    const farmClock = document.getElementById("farm-clock");
+    const profileToggle = document.getElementById("profile-toggle");
+    const profileCard = document.getElementById("profile-card");
+
+    const showStatus = (message, isError) => {
+        const toast = document.createElement("div");
+        toast.className = `toast ${isError ? "error" : "success"}`;
+        toast.textContent = message;
+        toastStack.appendChild(toast);
+
+        requestAnimationFrame(() => {
+            toast.classList.add("visible");
+        });
+
+        window.setTimeout(() => {
+            toast.classList.remove("visible");
+            window.setTimeout(() => toast.remove(), 220);
+        }, 3200);
+    };
+
+    if (profileToggle && profileCard) {
+        profileToggle.addEventListener("click", () => {
+            const shouldOpen = profileCard.hasAttribute("hidden");
+            profileCard.toggleAttribute("hidden");
+            profileToggle.setAttribute("aria-expanded", String(shouldOpen));
+        });
+    }
+
+    if (farmClock) {
+        let current = new Date(farmClock.dataset.now);
+        const timeFormatter = new Intl.DateTimeFormat("fr-FR", {
+            timeZone: "Europe/Paris",
+            hour: "2-digit",
+            minute: "2-digit"
+        });
+        const dateFormatter = new Intl.DateTimeFormat("fr-FR", {
+            timeZone: "Europe/Paris",
+            weekday: "long",
+            day: "numeric",
+            month: "long",
+            year: "numeric"
+        });
+        const phaseLabel = (date) => {
+            const parisHour = Number(new Intl.DateTimeFormat("fr-FR", {
+                timeZone: "Europe/Paris",
+                hour: "2-digit",
+                hour12: false
+            }).format(date));
+            if (parisHour < 6) return "Nuit de ferme";
+            if (parisHour < 12) return "Matin de ferme";
+            if (parisHour < 18) return "Apres-midi de ferme";
+            if (parisHour < 22) return "Soiree de ferme";
+            return "Nuit de ferme";
+        };
+
+        const renderClock = () => {
+            document.getElementById("clock-time").textContent = timeFormatter.format(current);
+            const formattedDate = dateFormatter.format(current);
+            document.getElementById("clock-date").textContent = formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
+            document.getElementById("clock-phase").textContent = phaseLabel(current);
+        };
+
+        renderClock();
+        window.setInterval(() => {
+            current = new Date(current.getTime() + 1000);
+            renderClock();
+        }, 1000);
+    }
+
+    document.querySelectorAll(".action-button").forEach((button) => {
+        button.addEventListener("click", async () => {
+            button.disabled = true;
+            const cowId = button.dataset.cowId;
+            const action = button.dataset.action;
+
+            try {
+                const response = await fetch(`/api/cows/${cowId}/${action}`, { method: "POST" });
+                if (!response.ok) {
+                    const text = await response.text();
+                    throw new Error(text || "Une erreur est survenue.");
+                }
+                showStatus("Action effectuee avec succes.", false);
+                window.location.reload();
+            } catch (error) {
+                showStatus(error.message, true);
+                button.disabled = false;
+            }
+        });
+    });
+</script>
 </body>
 </html>

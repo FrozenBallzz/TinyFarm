@@ -7,6 +7,7 @@ import com.tinyfarm.entity.Farm;
 import com.tinyfarm.entity.Inventory;
 import com.tinyfarm.repository.AppUserRepository;
 import jakarta.transaction.Transactional;
+import java.time.Instant;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
@@ -34,10 +35,17 @@ public class GithubUserProvisioningService {
 
         AppUser user = new AppUser(githubLogin, githubId.longValue(), resolvedName);
         Farm farm = new Farm(githubLogin + "'s Farm", GameRules.STARTING_COINS, user);
-        Inventory inventory = new Inventory(farm, GameRules.STARTING_FEED, GameRules.STARTING_MILK);
+        Inventory inventory = new Inventory(
+            farm,
+            GameRules.STARTING_STRAW,
+            GameRules.STARTING_WATER_BUCKETS,
+            GameRules.STARTING_SOAPS,
+            GameRules.STARTING_SYRINGES,
+            GameRules.STARTING_MILK
+        );
         farm.setInventory(inventory);
         for (int i = 0; i < GameRules.STARTING_COWS; i++) {
-            farm.addCow(new Cow(farm, "Starter Cow " + (i + 1), 50, true));
+            farm.addCow(new Cow(farm, "Starter Cow " + (i + 1), GameRules.STARTING_COW_WEIGHT, Instant.now(), true, true));
         }
         user.setFarm(farm);
         appUserRepository.save(user);

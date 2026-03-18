@@ -17,6 +17,12 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableMethodSecurity
 public class SecurityConfig {
 
+    private final DevAuthProperties devAuthProperties;
+
+    public SecurityConfig(DevAuthProperties devAuthProperties) {
+        this.devAuthProperties = devAuthProperties;
+    }
+
     @Bean
     public SecurityFilterChain securityFilterChain(
         HttpSecurity http,
@@ -26,12 +32,16 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/", "/css/**").permitAll()
+                .requestMatchers("/dev-login").permitAll()
                 .anyRequest().authenticated()
             )
-            .oauth2Login(oauth -> oauth
-                .userInfoEndpoint(userInfo -> userInfo.userService(oAuth2UserService))
-            )
             .logout(logout -> logout.logoutSuccessUrl("/"));
+
+        if (!devAuthProperties.enabled()) {
+            http.oauth2Login(oauth -> oauth
+                .userInfoEndpoint(userInfo -> userInfo.userService(oAuth2UserService))
+            );
+        }
 
         return http.build();
     }

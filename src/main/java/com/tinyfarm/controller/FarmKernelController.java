@@ -31,6 +31,26 @@ public class FarmKernelController {
         return farmKernelService.feedCow(user.<String>getAttribute("login"), cowId);
     }
 
+    @PostMapping("/cows/{cowId}/feed-straw")
+    public CowActionResponse feedCowWithStraw(@PathVariable Long cowId, @AuthenticationPrincipal OAuth2User user) {
+        return farmKernelService.feedCowWithStraw(user.<String>getAttribute("login"), cowId);
+    }
+
+    @PostMapping("/cows/{cowId}/water")
+    public CowActionResponse waterCow(@PathVariable Long cowId, @AuthenticationPrincipal OAuth2User user) {
+        return farmKernelService.waterCow(user.<String>getAttribute("login"), cowId);
+    }
+
+    @PostMapping("/cows/{cowId}/clean")
+    public CowActionResponse cleanCow(@PathVariable Long cowId, @AuthenticationPrincipal OAuth2User user) {
+        return farmKernelService.cleanCow(user.<String>getAttribute("login"), cowId);
+    }
+
+    @PostMapping("/cows/{cowId}/heal")
+    public CowActionResponse healCow(@PathVariable Long cowId, @AuthenticationPrincipal OAuth2User user) {
+        return farmKernelService.healCow(user.<String>getAttribute("login"), cowId);
+    }
+
     @PostMapping("/cows/{cowId}/collect-milk")
     public CowActionResponse collectMilk(@PathVariable Long cowId, @AuthenticationPrincipal OAuth2User user) {
         return farmKernelService.collectMilk(user.<String>getAttribute("login"), cowId);

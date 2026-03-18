@@ -59,6 +59,16 @@ public class Farm {
         return coins;
     }
 
+    public void spendCoins(int amount) {
+        if (amount < 0) {
+            throw new IllegalArgumentException("Amount must be positive.");
+        }
+        if (coins < amount) {
+            throw new IllegalStateException("Not enough coins.");
+        }
+        this.coins -= amount;
+    }
+
     public AppUser getOwner() {
         return owner;
     }

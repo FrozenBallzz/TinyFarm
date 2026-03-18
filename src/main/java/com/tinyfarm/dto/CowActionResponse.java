@@ -3,9 +3,14 @@ package com.tinyfarm.dto;
 public record CowActionResponse(
     Long cowId,
     String action,
-    int energy,
+    double weightKg,
+    int storedMilkLiters,
     boolean readyToMilk,
-    int feedStock,
+    int coins,
+    int strawStock,
+    int waterBucketStock,
+    int soapStock,
+    int syringeStock,
     int milkStock
 ) {
 }
