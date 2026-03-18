@@ -39,6 +39,7 @@ Ce fichier prepare :
 
 * Java
 * Maven
+* Spring Boot CLI (`spring`)
 * le port `8080`
 * quelques extensions VS Code utiles
 
@@ -87,6 +88,13 @@ Dans le terminal du Codespace, a la racine du projet :
 
 ```bash
 mvn spring-boot:run
+```
+
+Vous pouvez aussi verifier les outils preinstalles :
+
+```bash
+mvn -version
+spring --version
 ```
 
 Quand l'application demarre :

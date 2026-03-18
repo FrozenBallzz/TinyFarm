@@ -1,6 +1,12 @@
 {
   "name": "TinyFarm",
   "image": "mcr.microsoft.com/devcontainers/java:1-21-bullseye",
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "installZsh": false,
+      "username": "automatic"
+    }
+  },
   "forwardPorts": [
     8080
   ],
@@ -19,5 +25,5 @@
       ]
     }
   },
-  "postCreateCommand": "mvn -q -DskipTests compile"
+  "postCreateCommand": "bash .devcontainer/post-create.sh"
 }

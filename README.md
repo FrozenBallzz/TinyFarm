@@ -44,7 +44,7 @@ Guides disponibles :
 Pour lancer l'application, les outils suivants doivent être installés :
 
 * **Java 17 ou supérieur**
-* **Maven** (ou utiliser le wrapper Maven fourni)
+* **Maven** (dans Codespaces, il est preinstalle par le devcontainer)
 * **PostgreSQL**
 * **Git**
 
@@ -53,6 +53,7 @@ Vérifier les installations :
 ```bash
 java -version
 mvn -version
+spring --version
 psql --version
 ```
 
