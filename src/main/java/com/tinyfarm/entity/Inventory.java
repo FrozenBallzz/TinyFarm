@@ -23,7 +23,16 @@ public class Inventory {
     private Farm farm;
 
     @Column(nullable = false)
-    private int feedStock;
+    private int strawStock;
+
+    @Column(nullable = false)
+    private int waterBucketStock;
+
+    @Column(nullable = false)
+    private int soapStock;
+
+    @Column(nullable = false)
+    private int syringeStock;
 
     @Column(nullable = false)
     private int milkStock;
@@ -31,9 +40,12 @@ public class Inventory {
     protected Inventory() {
     }
 
-    public Inventory(Farm farm, int feedStock, int milkStock) {
+    public Inventory(Farm farm, int strawStock, int waterBucketStock, int soapStock, int syringeStock, int milkStock) {
         this.farm = farm;
-        this.feedStock = feedStock;
+        this.strawStock = strawStock;
+        this.waterBucketStock = waterBucketStock;
+        this.soapStock = soapStock;
+        this.syringeStock = syringeStock;
         this.milkStock = milkStock;
     }
 
@@ -45,16 +57,40 @@ public class Inventory {
         return farm;
     }
 
-    public int getFeedStock() {
-        return feedStock;
+    public int getStrawStock() {
+        return strawStock;
+    }
+
+    public int getWaterBucketStock() {
+        return waterBucketStock;
+    }
+
+    public int getSoapStock() {
+        return soapStock;
+    }
+
+    public int getSyringeStock() {
+        return syringeStock;
     }
 
     public int getMilkStock() {
         return milkStock;
     }
 
-    public void consumeFeed(int amount) {
-        this.feedStock -= amount;
+    public void consumeStraw(int amount) {
+        this.strawStock -= amount;
+    }
+
+    public void consumeWaterBucket(int amount) {
+        this.waterBucketStock -= amount;
+    }
+
+    public void consumeSoap(int amount) {
+        this.soapStock -= amount;
+    }
+
+    public void consumeSyringe(int amount) {
+        this.syringeStock -= amount;
     }
 
     public void addMilk(int amount) {

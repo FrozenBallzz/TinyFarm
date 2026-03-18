@@ -1,5 +1,6 @@
 package com.tinyfarm.controller;
 
+import com.tinyfarm.config.DevAuthProperties;
 import com.tinyfarm.dto.DashboardResponse;
 import com.tinyfarm.service.FarmKernelService;
 import org.springframework.stereotype.Controller;
@@ -12,14 +13,17 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class DashboardController {
 
     private final FarmKernelService farmKernelService;
+    private final DevAuthProperties devAuthProperties;
 
-    public DashboardController(FarmKernelService farmKernelService) {
+    public DashboardController(FarmKernelService farmKernelService, DevAuthProperties devAuthProperties) {
         this.farmKernelService = farmKernelService;
+        this.devAuthProperties = devAuthProperties;
     }
 
     @GetMapping("/")
     public String home(Model model, @AuthenticationPrincipal OAuth2User user) {
         model.addAttribute("isAuthenticated", user != null);
+        model.addAttribute("devAuthEnabled", devAuthProperties.enabled());
         if (user != null) {
             DashboardResponse dashboard = farmKernelService.getDashboard(user.<String>getAttribute("login"));
             model.addAttribute("dashboard", dashboard);

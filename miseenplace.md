@@ -130,6 +130,39 @@ Si la connexion reussit :
 * un inventaire est cree
 * une vache de depart est ajoutee
 
+## Option locale pour enchaîner les tests sans GitHub
+
+Si vous voulez créer plusieurs comptes de test sans repasser par OAuth GitHub, vous pouvez activer le mode `dev auth`.
+
+Ajoutez dans `.env` :
+
+```env
+DEV_AUTH_ENABLED=true
+DEV_AUTH_TOKEN=mon-token-local
+```
+
+Puis relancez l'application :
+
+```bash
+mvn spring-boot:run
+```
+
+Quand vous ouvrez `http://localhost:8080`, un formulaire de connexion locale apparait a la place du bouton GitHub.
+
+Vous pouvez alors vous connecter avec autant d'identites factices que vous voulez :
+
+* login : `tinyfarmer-a`
+* login : `tinyfarmer-b`
+* login : `tinyfarmer-c`
+
+Chaque login cree ou recharge sa propre ferme locale. Le token sert seulement a eviter d'activer ce raccourci sans le vouloir.
+
+Important :
+
+* ce mode est desactive par defaut
+* il est destine au developpement local
+* n'activez pas ce mode sur un deploiement partage
+
 ---
 
 # 7. Base de donnees locale
@@ -248,4 +281,3 @@ Puis :
 * `.env.example`
 * `src/main/resources/application.yml`
 * `src/main/resources/application-postgres.yml`
-
