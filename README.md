@@ -1,4 +1,5 @@
 # TinyFarm
+## Cette branche était faite pour développer la partie auth.
 ## README POUR LES SPECS IL EST PAS FAIT POUR LES UTILISATEURS
 
 L'application simule une ferme virtuelle inspirée du jeu **My eFarm**.
