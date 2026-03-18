@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.tinyfarm.dto.CowActionResponse;
 import com.tinyfarm.dto.DashboardResponse;
+import com.tinyfarm.dto.RenameCowRequest;
 import com.tinyfarm.repository.AppUserRepository;
 import com.tinyfarm.repository.FarmRepository;
 import java.util.List;
@@ -44,43 +45,79 @@ class FarmKernelServiceTest {
         DashboardResponse dashboard = farmKernelService.getDashboard("tinyfarmer");
 
         assertThat(dashboard.githubLogin()).isEqualTo("tinyfarmer");
-        assertThat(dashboard.feedStock()).isEqualTo(6);
+        assertThat(dashboard.feedStock()).isEqualTo(12);
+        assertThat(dashboard.waterStock()).isEqualTo(12);
         assertThat(dashboard.milkStock()).isZero();
         assertThat(dashboard.cows()).hasSize(1);
-        assertThat(dashboard.cows().get(0).readyToMilk()).isTrue();
+        assertThat(dashboard.cows().get(0).readyToMilk()).isFalse();
+        assertThat(dashboard.cows().get(0).weightKg()).isEqualTo(1);
     }
 
     @Test
-    void feedCowConsumesFeedAndLeavesCowReadyToMilk() {
+    void feedCowConsumesFeedAndCapsEnergyAtHundred() {
         Long cowId = farmKernelService.getDashboard("tinyfarmer").cows().get(0).id();
 
+        farmKernelService.feedCow("tinyfarmer", cowId);
+        farmKernelService.advanceCowDay("tinyfarmer", cowId);
+        farmKernelService.feedCow("tinyfarmer", cowId);
+        farmKernelService.advanceCowDay("tinyfarmer", cowId);
         CowActionResponse response = farmKernelService.feedCow("tinyfarmer", cowId);
 
         assertThat(response.action()).isEqualTo("feed");
-        assertThat(response.feedStock()).isEqualTo(5);
-        assertThat(response.energy()).isEqualTo(70);
-        assertThat(response.readyToMilk()).isTrue();
+        assertThat(response.feedStock()).isEqualTo(9);
+        assertThat(response.energy()).isLessThanOrEqualTo(100);
     }
 
     @Test
-    void collectMilkAddsMilkToInventory() {
+    void canRenameCow() {
         Long cowId = farmKernelService.getDashboard("tinyfarmer").cows().get(0).id();
+
+        CowActionResponse response = farmKernelService.renameCow("tinyfarmer", cowId, new RenameCowRequest("Marguerite"));
+
+        assertThat(response.name()).isEqualTo("Marguerite");
+        assertThat(farmKernelService.getDashboard("tinyfarmer").cows().get(0).name()).isEqualTo("Marguerite");
+    }
+
+    @Test
+    void collectMilkAddsProducedMilkToInventory() {
+        Long cowId = farmKernelService.getDashboard("tinyfarmer").cows().get(0).id();
+        for (int i = 0; i < 10; i++) {
+            farmKernelService.feedCow("tinyfarmer", cowId);
+            farmKernelService.waterCow("tinyfarmer", cowId);
+            farmKernelService.advanceCowDay("tinyfarmer", cowId);
+        }
 
         CowActionResponse response = farmKernelService.collectMilk("tinyfarmer", cowId);
 
         assertThat(response.action()).isEqualTo("collect-milk");
-        assertThat(response.milkStock()).isEqualTo(2);
+        assertThat(response.milkStock()).isEqualTo(8);
         assertThat(response.readyToMilk()).isFalse();
     }
 
     @Test
     void collectMilkFailsWhenCowIsNotReady() {
         Long cowId = farmKernelService.getDashboard("tinyfarmer").cows().get(0).id();
-        farmKernelService.collectMilk("tinyfarmer", cowId);
 
         assertThatThrownBy(() -> farmKernelService.collectMilk("tinyfarmer", cowId))
             .isInstanceOf(IllegalStateException.class)
-            .hasMessageContaining("not ready");
+            .hasMessageContaining("adult");
+    }
+
+    @Test
+    void advanceDayMakesCowAdultAndProducesMilkWhenProperlyCaredFor() {
+        Long cowId = farmKernelService.getDashboard("tinyfarmer").cows().get(0).id();
+
+        for (int i = 0; i < 10; i++) {
+            farmKernelService.feedCow("tinyfarmer", cowId);
+            farmKernelService.waterCow("tinyfarmer", cowId);
+            farmKernelService.advanceCowDay("tinyfarmer", cowId);
+        }
+
+        DashboardResponse dashboard = farmKernelService.getDashboard("tinyfarmer");
+
+        assertThat(dashboard.cows().get(0).adult()).isTrue();
+        assertThat(dashboard.cows().get(0).weightKg()).isGreaterThanOrEqualTo(80);
+        assertThat(dashboard.cows().get(0).milkAvailableLiters()).isGreaterThanOrEqualTo(8);
     }
 
     @Test

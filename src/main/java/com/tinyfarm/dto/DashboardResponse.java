@@ -7,6 +7,7 @@ public record DashboardResponse(
     String farmName,
     int coins,
     int feedStock,
+    int waterStock,
     int milkStock,
     List<CowResponse> cows
 ) {

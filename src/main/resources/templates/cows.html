@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TinyFarm - Mes vaches</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+<main class="farm-shell">
+    <header class="topbar">
+        <div>
+            <p class="eyebrow">TinyFarm</p>
+            <h1 class="page-title">Le coin des vaches</h1>
+            <p class="copy compact">
+                Gere le troupeau de <span th:text="${dashboard.farmName()}">Farm</span> et pilote les fonctions du patûrage.
+            </p>
+        </div>
+        <div class="topbar-actions">
+            <a class="button ghost" href="/">Retour a l'accueil</a>
+            <form action="/logout" method="post">
+                <button class="button secondary" type="submit">Se deconnecter</button>
+            </form>
+        </div>
+    </header>
+
+    <section class="resource-strip">
+        <article class="resource-card">
+            <span class="resource-label">Exploitant</span>
+            <strong th:text="${githubLogin}">user</strong>
+        </article>
+        <article class="resource-card">
+            <span class="resource-label">Ecus</span>
+            <strong th:text="${dashboard.coins()}">0</strong>
+        </article>
+        <article class="resource-card">
+            <span class="resource-label">Reserve de fourrage</span>
+            <strong th:text="${dashboard.feedStock()}">0</strong>
+        </article>
+        <article class="resource-card">
+            <span class="resource-label">Reserve d'eau</span>
+            <strong th:text="${dashboard.waterStock()}">0</strong>
+        </article>
+        <article class="resource-card">
+            <span class="resource-label">Reserve de lait</span>
+            <strong th:text="${dashboard.milkStock()}">0</strong>
+        </article>
+    </section>
+
+    <section th:if="${flashMessage}" class="flash success" th:text="${flashMessage}"></section>
+    <section th:if="${flashError}" class="flash error" th:text="${flashError}"></section>
+
+    <section class="cow-grid">
+        <article class="cow-card" th:each="cow : ${dashboard.cows()}">
+            <div class="cow-card-header">
+                <div>
+                    <p class="eyebrow small">Vache</p>
+                    <h2 th:text="${cow.name()}">Starter Cow</h2>
+                </div>
+                <span class="status-pill" th:classappend="${cow.readyToMilk()} ? ' ready' : ' resting'"
+                      th:text="${cow.readyToMilk()} ? 'Prete a traire' : 'Pas de lait pret'">Prete a traire</span>
+            </div>
+
+            <div class="meter-block">
+                <div class="meter-copy">
+                    <span>Energie</span>
+                    <strong th:text="${cow.energy()} + '/100'">50/100</strong>
+                </div>
+                <div class="meter">
+                    <div class="meter-fill" th:style="'width:' + ${cow.energy()} + '%'"></div>
+                </div>
+            </div>
+
+            <div class="cow-stats">
+                <span th:text="'Age : ' + ${cow.ageDays()} + ' jours'">Age</span>
+                <span th:text="'Poids : ' + ${cow.weightKg()} + ' kg'">Poids</span>
+                <span th:text="'Lait disponible : ' + ${cow.milkAvailableLiters()} + ' L'">Lait</span>
+                <span th:text="${cow.adult()} ? 'Adulte' : 'En croissance'">Statut</span>
+                <span th:text="${cow.clean()} ? 'Propre' : 'Sale'">Hygiene</span>
+                <span th:text="${cow.sick()} ? 'Malade' : 'En forme'">Sante</span>
+            </div>
+
+            <p class="cow-note"
+               th:text="${cow.adult()} ? 'Une vache adulte propre, en forme, nourrie et abreuvee pourra produire du lait.' : 'La vache doit atteindre 80 kg et 10 jours pour devenir adulte.'">
+                Une vache adulte propre, en forme, nourrie et abreuvee pourra produire du lait.
+            </p>
+
+            <form class="rename-form" th:action="@{/cows/{cowId}/rename(cowId=${cow.id()})}" method="post">
+                <input class="text-input" type="text" name="name" th:value="${cow.name()}" maxlength="40" required>
+                <button class="button ghost" type="submit">Renommer</button>
+            </form>
+
+            <div class="card-actions">
+                <form th:action="@{/cows/{cowId}/feed(cowId=${cow.id()})}" method="post">
+                    <button class="button" type="submit">Nourrir</button>
+                </form>
+                <form th:action="@{/cows/{cowId}/water(cowId=${cow.id()})}" method="post">
+                    <button class="button ghost" type="submit">Abreuver</button>
+                </form>
+                <form th:action="@{/cows/{cowId}/clean(cowId=${cow.id()})}" method="post">
+                    <button class="button ghost" type="submit">Nettoyer</button>
+                </form>
+                <form th:action="@{/cows/{cowId}/heal(cowId=${cow.id()})}" method="post">
+                    <button class="button ghost" type="submit">Soigner</button>
+                </form>
+                <form th:action="@{/cows/{cowId}/collect-milk(cowId=${cow.id()})}" method="post">
+                    <button class="button secondary" type="submit">Traire</button>
+                </form>
+                <form th:action="@{/cows/{cowId}/advance-day(cowId=${cow.id()})}" method="post">
+                    <button class="button secondary" type="submit">Jour suivant</button>
+                </form>
+            </div>
+        </article>
+    </section>
+</main>
+</body>
+</html>

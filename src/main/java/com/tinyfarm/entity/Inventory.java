@@ -26,14 +26,18 @@ public class Inventory {
     private int feedStock;
 
     @Column(nullable = false)
+    private int waterStock;
+
+    @Column(nullable = false)
     private int milkStock;
 
     protected Inventory() {
     }
 
-    public Inventory(Farm farm, int feedStock, int milkStock) {
+    public Inventory(Farm farm, int feedStock, int waterStock, int milkStock) {
         this.farm = farm;
         this.feedStock = feedStock;
+        this.waterStock = waterStock;
         this.milkStock = milkStock;
     }
 
@@ -49,12 +53,20 @@ public class Inventory {
         return feedStock;
     }
 
+    public int getWaterStock() {
+        return waterStock;
+    }
+
     public int getMilkStock() {
         return milkStock;
     }
 
     public void consumeFeed(int amount) {
         this.feedStock -= amount;
+    }
+
+    public void consumeWater(int amount) {
+        this.waterStock -= amount;
     }
 
     public void addMilk(int amount) {

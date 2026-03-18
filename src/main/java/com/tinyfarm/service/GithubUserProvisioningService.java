@@ -34,10 +34,27 @@ public class GithubUserProvisioningService {
 
         AppUser user = new AppUser(githubLogin, githubId.longValue(), resolvedName);
         Farm farm = new Farm(githubLogin + "'s Farm", GameRules.STARTING_COINS, user);
-        Inventory inventory = new Inventory(farm, GameRules.STARTING_FEED, GameRules.STARTING_MILK);
+        Inventory inventory = new Inventory(
+            farm,
+            GameRules.STARTING_FEED,
+            GameRules.STARTING_WATER,
+            GameRules.STARTING_MILK
+        );
         farm.setInventory(inventory);
         for (int i = 0; i < GameRules.STARTING_COWS; i++) {
-            farm.addCow(new Cow(farm, "Starter Cow " + (i + 1), 50, true));
+            farm.addCow(new Cow(
+                farm,
+                "Starter Cow " + (i + 1),
+                GameRules.COW_STARTING_ENERGY,
+                GameRules.COW_STARTING_AGE_DAYS,
+                GameRules.COW_STARTING_WEIGHT_KG,
+                0,
+                true,
+                false,
+                false,
+                false,
+                true
+            ));
         }
         user.setFarm(farm);
         appUserRepository.save(user);

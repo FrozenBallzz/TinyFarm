@@ -1,37 +1,67 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TinyFarm Kernel</title>
+    <title>TinyFarm - Welcome</title>
     <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
-<main class="shell">
-    <section class="panel">
-        <p class="eyebrow">TinyFarm Kernel</p>
-        <h1>Minimal farm core, real GitHub auth, upgrade-ready backend.</h1>
-        <p class="copy">
-            The current kernel keeps the domain small: one authenticated user, one farm, one inventory and cows.
-        </p>
+<main class="welcome-shell">
+    <section class="welcome-hero">
+        <div class="hero-copy">
+            <p class="eyebrow">TinyFarm</p>
+            <h1>Bienvenue dans une ferme minuscule, mais deja jouable.</h1>
+            <p class="copy">
+                Le kernel est pret: connexion GitHub, ferme personnelle, inventaire de base et premier troupeau de vaches.
+            </p>
 
-        <div th:if="${!isAuthenticated}">
-            <a class="button" href="/oauth2/authorization/github">Login with GitHub</a>
+            <div class="hero-actions" th:if="${!isAuthenticated}">
+                <a class="button" href="/oauth2/authorization/github">Entrer avec GitHub</a>
+            </div>
+
+            <div class="hero-actions" th:if="${isAuthenticated and dashboard != null}">
+                <a class="button" href="/cows">Acceder aux vaches</a>
+                <form action="/logout" method="post">
+                    <button class="button secondary" type="submit">Se deconnecter</button>
+                </form>
+            </div>
         </div>
 
-        <div th:if="${isAuthenticated and dashboard != null}" class="stack">
-            <p class="stat" th:text="'Farm: ' + ${dashboard.farmName()}"></p>
-            <p class="stat" th:text="'Coins: ' + ${dashboard.coins()}"></p>
-            <p class="stat" th:text="'Feed: ' + ${dashboard.feedStock()}"></p>
-            <p class="stat" th:text="'Milk: ' + ${dashboard.milkStock()}"></p>
-            <ul class="cows">
-                <li th:each="cow : ${dashboard.cows()}"
-                    th:text="${cow.name()} + ' - energy ' + ${cow.energy()} + ', readyToMilk=' + ${cow.readyToMilk()}"></li>
+        <aside class="welcome-panel" th:if="${isAuthenticated and dashboard != null}">
+            <p class="eyebrow small">Session active</p>
+            <h2 th:text="${dashboard.farmName()}">Ma ferme</h2>
+            <p class="copy compact">
+                Connecte en tant que <strong th:text="${githubLogin}">user</strong>. Ton kernel est actif et ton troupeau t'attend.
+            </p>
+            <div class="summary-grid">
+                <article class="summary-card">
+                    <span>Ecus</span>
+                    <strong th:text="${dashboard.coins()}">0</strong>
+                </article>
+                <article class="summary-card">
+                    <span>Fourrage</span>
+                    <strong th:text="${dashboard.feedStock()}">0</strong>
+                </article>
+                <article class="summary-card">
+                    <span>Lait</span>
+                    <strong th:text="${dashboard.milkStock()}">0</strong>
+                </article>
+                <article class="summary-card">
+                    <span>Vaches</span>
+                    <strong th:text="${#lists.size(dashboard.cows())}">0</strong>
+                </article>
+            </div>
+        </aside>
+
+        <aside class="welcome-panel muted" th:if="${!isAuthenticated}">
+            <p class="eyebrow small">Ce que tu vas debloquer</p>
+            <ul class="feature-list">
+                <li>Une ferme liee a ton compte GitHub</li>
+                <li>Un inventaire avec reserve de fourrage et de lait</li>
+                <li>Une premiere vache avec actions de base</li>
             </ul>
-            <form action="/logout" method="post">
-                <button class="button secondary" type="submit">Logout</button>
-            </form>
-        </div>
+        </aside>
     </section>
 </main>
 </body>

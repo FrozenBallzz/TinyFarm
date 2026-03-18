@@ -59,6 +59,10 @@ public class Farm {
         return coins;
     }
 
+    public void spendCoins(int amount) {
+        this.coins -= amount;
+    }
+
     public AppUser getOwner() {
         return owner;
     }
