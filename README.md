@@ -1,4 +1,5 @@
 # TinyFarm
+## Cette branche est faite pour le prototype utilisant la fausse authentification et les tests. 
 ##README POUR LES SPECS IL EST PAS FAIT POUR LES UTILISATEURS
 
 L'application simule une ferme virtuelle inspirée du jeu **My eFarm**.
