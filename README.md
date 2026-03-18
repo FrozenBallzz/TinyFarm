@@ -31,6 +31,11 @@ Infrastructure
 * GitHub
 * GitHub Codespaces (environnement recommandé)
 
+Guides disponibles :
+
+* `miseenplace.md` pour une installation locale classique
+* `Codespaces.md` pour une utilisation via GitHub Codespaces
+
 ---
 
 # Prérequis
